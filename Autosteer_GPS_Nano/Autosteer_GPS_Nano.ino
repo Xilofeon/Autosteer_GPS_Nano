@@ -2,7 +2,7 @@
    *  20/05/24
    *  Desmartins Daniel
    */
-#define VERSION 0.30
+#define VERSION 0.31
 //#define PANDA //Use PANDA ? expérimental code... Not working yet!!
 
 #include <Wire.h>
@@ -167,7 +167,7 @@ void loop()
     }
     #else //PANDA
     while (Serial.available() > 41) {
-      nmea = Serial.readStringUntil('\n'); 
+      nmea += Serial.readStringUntil('\n'); 
         
       if (nmea.length() > 0) {
         ether.sendUdp(nmea.c_str(), nmea.length(), portMy, ipDestination, portDestination);
