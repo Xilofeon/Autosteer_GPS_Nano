@@ -61,8 +61,6 @@ void GGA_Handler() //Rec'd GGA
     // time of last DGPS update
     parser.getArg(12, ageDGPS);
 
-    GGA_Available = true;
-
     if (useBNO08x)
     {
        imuHandler();          //Get IMU data ready

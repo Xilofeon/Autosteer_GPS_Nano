@@ -1,8 +1,8 @@
   /*  UDP Autosteer GPS code For Arduino
-   *  20/05/24
+   *  24/05/24
    *  Desmartins Daniel
    */
-#define VERSION 0.31
+#define VERSION 0.32
 //#define PANDA //Use PANDA ? expérimental code... Not working yet!!
 
 #include <Wire.h>
@@ -64,11 +64,10 @@ BNO080 bno08x;
 #ifdef PANDA
 NMEAParser<2> parser;
 #else
-String nmea = "";
-
 int16_t bno08xHeading10x = 0;
 int16_t bno08xRoll10x = 0;
 #endif
+String nmeaBuffer = "";
 
 float roll = 0;
 float pitch = 0;
@@ -153,26 +152,26 @@ void loop()
 
     // Pass NTRIP etc to GPS
     // Read incoming nmea from GPS
-    #ifdef PANDA
-    if (Serial.available())
-    {
-        parser << Serial.read();
+    //delay(1);
+    while (Serial.available() > 41) {
+      nmeaBuffer += Serial.readStringUntil('\n'); 
+        
+      if (nmeaBuffer.length() > 0) {
+        #ifdef PANDA
+        parser << nmeaBuffer.c_str();
+        #else //PANDA
+        ether.sendUdp(nmeaBuffer.c_str(), nmeaBuffer.length(), portMy, ipDestination, portDestination);
+        #endif //PANDA
+        nmeaBuffer = "";
+      }
     }
 
+    #ifdef PANDA
     //Read BNO
     if((millis() - READ_BNO_TIME) > REPORT_INTERVAL && useBNO08x)
     {
       READ_BNO_TIME = millis();
       readBNO();
-    }
-    #else //PANDA
-    while (Serial.available() > 41) {
-      nmea += Serial.readStringUntil('\n'); 
-        
-      if (nmea.length() > 0) {
-        ether.sendUdp(nmea.c_str(), nmea.length(), portMy, ipDestination, portDestination);
-        nmea = "";
-      }
     }
     #endif //PANDA
     
