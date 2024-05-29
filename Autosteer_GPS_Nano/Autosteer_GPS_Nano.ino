@@ -1,8 +1,8 @@
   /*  UDP Autosteer GPS code For Arduino
-   *  24/05/24
+   *  29/05/24
    *  Desmartins Daniel
    */
-#define VERSION 0.32
+#define VERSION 0.33
 //#define PANDA //Use PANDA ? expérimental code... Not working yet!!
 
 #include <Wire.h>
@@ -148,19 +148,18 @@ void setup()
 
 void loop()
 {    
-    ether.packetLoop(ether.packetReceive());
-
     // Pass NTRIP etc to GPS
     // Read incoming nmea from GPS
     //delay(1);
     while (Serial.available() > 41) {
-      nmeaBuffer += Serial.readStringUntil('\n'); 
-        
-      if (nmeaBuffer.length() > 0) {
+      nmeaBuffer += Serial.readStringUntil('\n');
+      
+      const uint8_t len = nmeaBuffer.length();
+      if (len > 0) {
         #ifdef PANDA
         parser << nmeaBuffer.c_str();
         #else //PANDA
-        ether.sendUdp(nmeaBuffer.c_str(), nmeaBuffer.length(), portMy, ipDestination, portDestination);
+        ether.sendUdp(nmeaBuffer.c_str(), len, portMy, ipDestination, portDestination);
         #endif //PANDA
         nmeaBuffer = "";
       }
@@ -175,6 +174,14 @@ void loop()
     }
     #endif //PANDA
     
+    ether.packetLoop(ether.packetReceive());
+
     autosteerLoop();
 }//End Loop
+
+void udpNtrip(uint16_t dest_port, uint8_t src_ip[IP_LEN], uint16_t src_port, uint8_t* udpData, uint16_t len)
+{
+    Serial.write(udpData, len);
+    delay(1);
+}
 //**************************************************************************
