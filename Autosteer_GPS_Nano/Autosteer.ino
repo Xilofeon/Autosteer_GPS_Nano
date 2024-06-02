@@ -617,11 +617,9 @@ void udpSteerRecv(uint16_t dest_port, uint8_t src_ip[IP_LEN], uint16_t src_port,
                 helloFromAutoSteer[9] = switchByte;
 
                 ether.sendUdp(helloFromAutoSteer, sizeof(helloFromAutoSteer), portMy, ipDestination, portDestination);
-                #ifndef PANDA
                 if (useBNO08x) {
                   ether.sendUdp(helloFromIMU, sizeof(helloFromIMU), portMy, ipDestination, portDestination);
                 }
-                #endif //PANDA
             }
             else if (autoSteerUdpData[3] == 201)
             {
