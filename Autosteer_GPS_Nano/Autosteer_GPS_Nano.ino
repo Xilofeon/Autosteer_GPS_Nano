@@ -1,9 +1,15 @@
   /*  UDP Autosteer GPS code For Arduino
-   *  02/06/24
+   *  09/07/24
    *  Desmartins Daniel
    */
-#define VERSION 0.40
+#define VERSION 0.42
 #define PANDA //Use PANDA or just send GPS data to Autosteer?
+
+#undef SERIAL_RX_BUFFER_SIZE
+#define SERIAL_RX_BUFFER_SIZE (128)
+
+#undef SERIAL_TX_BUFFER_SIZE
+#define SERIAL_TX_BUFFER_SIZE (128)
 
 #include <Wire.h>
 #include "EtherCard_AOG.h"
@@ -92,6 +98,8 @@ void setup()
   Serial.println(F("Firmware : Autosteer GPS Nano"));
   Serial.print(F("Version : "));
   Serial.println(VERSION);
+  Serial.print(F("Taille buffer RX : ")); Serial.println(SERIAL_RX_BUFFER_SIZE);
+  Serial.print(F("Taille buffer TX : ")); Serial.println(SERIAL_TX_BUFFER_SIZE);
 
   autosteerSetup();
   
@@ -184,5 +192,6 @@ void udpNtrip(uint16_t dest_port, uint8_t src_ip[IP_LEN], uint16_t src_port, uin
 {
     Serial.write(udpData, len);
     delay(1);
+    Serial.flush();
 }
 //**************************************************************************
